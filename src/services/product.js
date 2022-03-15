@@ -28,6 +28,9 @@ productsRouter.post("/", async (req, res, next) => {
 
 productsRouter.delete("/:id", async (req, res, next) => {
   try {
+    await pool.query("DELETE FROM review WHERE product_id=$1;", [
+        req.params.id,
+      ]);
     const data = await pool.query("DELETE FROM product WHERE id=$1;", [
       req.params.id,
     ]);
