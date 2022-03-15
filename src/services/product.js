@@ -68,7 +68,7 @@ productsRouter.put("/:id", async (req, res, next) => {
   }
 })
 
-productsRouter.get("/reviews", async (req, res, next) => {
+productsRouter.get("/review", async (req, res, next) => {
     try {
       const data = await pool.query("SELECT * FROM review;");
       res.send(data.rows);
@@ -77,7 +77,7 @@ productsRouter.get("/reviews", async (req, res, next) => {
     }
   })
 
-  productsRouter.post("/:prodId/reviews", async (req, res, next) => {
+  productsRouter.post("/:prodId/review", async (req, res, next) => {
     try {
       const data = await pool.query(
         "INSERT INTO review(comment,rate,product_id) VALUES($1,$2,$3) RETURNING *;", 
@@ -90,7 +90,7 @@ productsRouter.get("/reviews", async (req, res, next) => {
     }
   })
 
-  productsRouter.delete("/:id/reviews", async (req, res, next) => {
+  productsRouter.delete("/:id/review", async (req, res, next) => {
     try {
       const data = await pool.query("DELETE FROM review WHERE id=$1;", [
         req.params.id,
@@ -114,6 +114,26 @@ productsRouter.get("/reviews", async (req, res, next) => {
       const data = await pool.query(
         "UPDATE review SET comment=$1,rate=$2 WHERE id=$3 RETURNING *;",
         [req.body.comment, req.body.rate, req.params.id]
+      )
+  
+      const isUpdated = data.rowCount > 0;
+      if (isUpdated) {
+        res.status(200).send(data.rows[0]);
+      } else {
+        res.status(404).send({
+          message: "Product not found therefore there is nothing to done.",
+        });
+      }
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  })
+
+  productsRouter.post("/:id/upload", async (req, res, next) => {
+    try {
+      const data = await pool.query(
+        "UPDATE product SET image_url=$1 WHERE id=$2 RETURNING *;",
+        [req.body.image_url, req.params.id]
       )
   
       const isUpdated = data.rowCount > 0;

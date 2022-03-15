@@ -9,7 +9,7 @@ server.use(express.json());
 
 server.use(cors());
 
-server.use("/products", productsRouter);
+server.use("/product", productsRouter);
 
 const { PORT = 5001 } = process.env;
 
