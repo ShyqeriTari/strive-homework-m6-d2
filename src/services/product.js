@@ -24,6 +24,15 @@ productsRouter.get("/", async (req, res, next) => {
   }
 })
 
+productsRouter.get("/review", async (req, res, next) => {
+    try {
+      const data = await pool.query("SELECT * FROM review;");
+      res.send(data.rows);
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  })
+
 productsRouter.get("/:id", async (req, res, next) => {
     try {
       const data = await pool.query("SELECT * FROM product WHERE id=$1", [
@@ -99,20 +108,14 @@ productsRouter.put("/:id", async (req, res, next) => {
   }
 })
 
-productsRouter.get("/review", async (req, res, next) => {
-    try {
-      const data = await pool.query("SELECT * FROM review;");
-      res.send(data.rows);
-    } catch (error) {
-      res.status(500).send({ message: error.message });
-    }
-  })
+
 
   productsRouter.post("/:prodId/review", async (req, res, next) => {
     try {
       const data = await pool.query(
         "INSERT INTO review(comment,rate,product_id) VALUES($1,$2,$3) RETURNING *;", 
-        Object.values(req.body)
+       // Object.values(req.body).concat(req.params.prodId) // []
+       [...Object.values(req.body), req.params.prodId]
       );
       const product = data.rows[0];
       res.status(201).send(product);
