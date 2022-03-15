@@ -17,11 +17,33 @@ const cloudMulterMedia = multer({ storage: cloudStorageMedia })
 productsRouter.get("/", async (req, res, next) => {
   try {
     const data = await pool.query("SELECT * FROM product;");
-    res.send(data.rows);
+
+    const review = await pool.query("SELECT * FROM review;");
+      res.send([data.rows, review.rows]);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 })
+
+productsRouter.get("/:id", async (req, res, next) => {
+    try {
+      const data = await pool.query("SELECT * FROM product WHERE id=$1", [
+        req.params.id,
+      ]);
+      const review = await pool.query("SELECT * FROM review WHERE product_id=$1", [
+        req.params.id,
+      ]);
+      const product = data.rows[0];
+      const reviews = review.rows[0]
+      if (product) {
+        res.send([product, reviews]);
+      } else {
+        res.status(404).send({ message: "Product is not found" });
+      }
+    } catch (error) {
+      res.status(500).send({ message: error.message });
+    }
+  });
 
 productsRouter.post("/", async (req, res, next) => {
   try {
