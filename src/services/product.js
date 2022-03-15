@@ -1,8 +1,18 @@
 import { Router } from "express";
-
 import pool from "../utils/db.js";
+import { CloudinaryStorage } from "multer-storage-cloudinary"
+import { v2 as cloudinary } from "cloudinary"
+import multer from "multer"
 
 const productsRouter = Router();
+
+const cloudStorageMedia = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "SQLM6",
+    },
+})
+const cloudMulterMedia = multer({ storage: cloudStorageMedia })
 
 productsRouter.get("/", async (req, res, next) => {
   try {
@@ -129,11 +139,11 @@ productsRouter.get("/review", async (req, res, next) => {
     }
   })
 
-  productsRouter.post("/:id/upload", async (req, res, next) => {
+  productsRouter.post("/:id/upload", cloudMulterMedia.single("image"), async (req, res, next) => {
     try {
       const data = await pool.query(
         "UPDATE product SET image_url=$1 WHERE id=$2 RETURNING *;",
-        [req.body.image_url, req.params.id]
+        [req.file.path, req.params.id]
       )
   
       const isUpdated = data.rowCount > 0;
