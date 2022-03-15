@@ -18,8 +18,7 @@ productsRouter.get("/", async (req, res, next) => {
   try {
     const data = await pool.query("SELECT * FROM product;");
 
-    const review = await pool.query("SELECT * FROM review;");
-      res.send([data.rows, review.rows]);
+      res.send(data.rows);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
