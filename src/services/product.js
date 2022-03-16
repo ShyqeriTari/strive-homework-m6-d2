@@ -115,7 +115,7 @@ productsRouter.put("/:id", async (req, res, next) => {
       const data = await pool.query(
         "INSERT INTO review(comment,rate,product_id) VALUES($1,$2,$3) RETURNING *;", 
        // Object.values(req.body).concat(req.params.prodId) // []
-       [...Object.values(req.body), req.params.prodId]
+       [...Object.values(req.body), parseInt(req.params.prodId)]
       );
       const product = data.rows[0];
       res.status(201).send(product);
